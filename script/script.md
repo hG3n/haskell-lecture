@@ -177,3 +177,16 @@ ___
     - $M::=c | x | M\ N| \lambda x. M$
     - where $c$ represents any constant we might use in a LAMBDA-term, such as numbers or arithmetic operations (a term without a constant is called pure $\lambda x. x$), the letter $x$ represents any of inifinitely manay variables $M\ N$ is an application of one term $M$ to another term $N$
     - $\lambda x. M$ is an abstraction
+
+
+___
+
+
+### The evaluation of LAMBDA-expressions
+- We have seen how the LAMBDA-notations can be used to represent functional expressions and we are going to define conversion rules of LC which will describe how to evaluate an expression.
+- or how to transform an expression from its initial state into final state
+- The simplest type of LAMBDA-expression is a constant.
+- Constants are self-defining, meaning that they cannot be transformed into any simpler expression
+- The expression $5$ produces the number $5$
+- The following table provides predefined constants:
+TABLE BLATT
