@@ -214,3 +214,98 @@ ___
 
 
 #### Lecture 3 (26.10.2015)
+
+- An application of a constant function can be tranformed by using the builtin rules if a sufficient amount of arguments is privided for that constant.
+- These builtin rules are often referred to as $\delta$-rules.
+    - Example: $+\ 1\ 3$ // read as  $"+\ 1\ 3 reduces to 4"$
+    - to evaluate this expression we need to apply a $\delta$-rule for arithmetic function $+$ as follows:
+    - $+\ 1\ 3 \rightarrow_{\delta} 4$
+    - This process of simplification is called \underline{reduction}
+- In general the arguments of such a function may not be in the required form for the reduction to take place immediately
+    - Example:
+    - $*\ (+\ 1\ 2)(-4\ 1)$
+    - to reduce this expression we must first reduce the argument expression of the multiplication function
+    - It can be done as follows: $*\ (+\ 1\ 2)(-4\ 1) \rightarrow_{\delta} -x(+\ 1\ 2)B \rightarrow_{\delta} *\ 3\ 3 \rightarrow_{\delta} 9$
+    - The most interesting reduction rule describes how to apply lambda abstraction.
+    - Let us consider the following application:
+        - $(LAMBDA x. *\ x\ x)2$
+        - In the LC the evaluation of such expressions consists in the textual replacement of a formal parameter in the body of a function by the actual parameter supplied.
+        - In the above example we get: $(LAMBDA x. *\ x\ x)2 \rightarrow_{\beta} *\ 2\ 2\ \rightarrow_{\delta} 4$
+        - \underline{Def:} The process of copying the body of an abstraction, replacing all occurence of the bound variable by the argument expression is known as $\beta$-reduction
+        - The term 'reduction' is used in a sense of simplification since we notionally cancel the LAMBDA, the bound variable and the argument expression and return just a modified form of a body.
+- The reduction of an abstraction applied to an argument may yield another abstraction, in that case the process can maybe repeated
+    - Example: In the folloring Expression :
+        - $((\lambda x. \lambda y. + x\ y )7)8
+    - we start by substituting the $7$ for $x$ in the body of outermost abstraction BLATT 1 yields:
+        - BLATT 2
+    - and end up with another abstraction to an argument expression.
+    - We can reduce
+    - The expression being reduced is called the \underline{redex}(short for reducable expression), and for the time being we will state that the process of reducing a LAMBDA-expression consists of repeatedly reducing the redexes of the expression until no more redexes exist.
+- We will sometimes qualify the word "redex" according to the type of the rule which can be used to simplify it $\delta$-redex -- $\delta$-rule, BETA-redex -- BETA-reduction
+- Let us consider the following expression:
+    - $(LAMBDA x. x)(+\ 2\x)$
+- This is clear thta the $x$ within the inner abstraction $(\lambda x.x)$ refers to a different bound variable, than in its argument expression $(+\ 1\ x)$.
+- If we apply this expression to an argument, (lets say $1$) then it would be wrong to perform BETA-reduction als follows:
+    - $(LAMBDA x.(LAMBDA x. x)(+\ 1\ x))1 \rightarrow (LAMBDA x. 1)(+\ 1\ 1) \rightarrow 1$
+- When we apply a BETA-reducion, we must be careful not to substitute inside an abstraction if the bound variable of that abstraction has the same name as the variable being substituted.
+- If it does have the same name, then we must leave this (inner) abstraction unchanged . It is possible to avoid such type of name clash by renaming the variables concerned - in this case one of $x$'s - so as to make each name unique.
+- Such renaming is called ALPHA-conversion
+- And expressions which are ALPHA-convertable, it means equal up to variable renaming, are called alphabetically equivalent.
+- Let us consider the following example of BETA-reduction:
+    - $(LAMBDA f. LAMBDA x. f\ 4\ x)(LAMBDA y. LAMBDA x. +\ x\ y) 3$
+- Step 1: Reduce the (only) redex by substituting the argument BLATT 4 for $f$ to the body of the abstraction BLATT 5
+- Step 2: (Arbitory) chose redex which which results in $3$ being substituted for $x$ to the body expression BLATT 6, but do not substitute beyond the $\lambda x)written the inner abstraction BLATT 7 
+- Step 3: Reduce the (only) redex BLATT 8
+- Step 4: Reduce the (only) redex:
+    - $\rightarrow +\ 3\ 4$
+- Step 5: Apply the DELTA-rule for $"+"$
+    - $\rightarrow 7$
+- Notice that the first reduction applied substituting f with the function (LAMBDAx LAMBDAy + x y)
+- The abstraction containing $f$ corresponds to a higher order function in the equivalent source program.
+- At Step 2 there was a choice of two redexes to reduce and we arbitrarily chose chose to reduce the outer one first.
+- However we could have chosen to do a BETA-reduction on the inner redex first as follows  BLATT 9 
+
+
+### Reduction order and normal forms
+- \underline{Def:} A LAMBDA-expression is said to be in the normal form if it cannot be further reduced .
+- In other words, it is in normal form if it contains no redexes.
+- Normal form corresponds to the idea of the "end" of computation in the programming sense.
+- This immediately suggests a naive evaluation scheme
+```while there are more redexes; do
+  reduce one of the redexes
+end;
+```
+- The expression now is in normal form
+- The problem with it is that there may be more than one redex within an expression
+- This leads us to the question:
+    - Which redex to reduce next?
+    - Let us consider the following expression: 
+        - BLATT 10
+    - Here wre have to redexes:
+        - BLATT 11
+    - and
+        - BLATT 12
+    - If we pick the second of these two to reduce first we get the following reduction sequence:
+        - BLATT 13
+    - Which is not terminating
+    - In the other hand if we chose the first redex we get
+        - BLATT 14 
+    - #HumanNatureQuote
+    - #braindamage
+    - #idontwanttosithereanymore
+    - Before a discussion of reduciton order let us introduce some definitions
+    - \underline{Def:}
+        - The leftmost redex is that redex whose LAMBDA (or primitive function identifier in the case of DELTA-redex) is textually to the left of all other redexes within the expression Yeah, (Similary for the rightmost redex) AhaAha
+    - \underline{Def:}
+        - An outermost redex is defined to be a redex which is not contained within any other redex.
+    - \underline{Def:}
+        - An innermost redex is defined to be a redex which containes no other redex.
+        - these are two of the most important reduction strategies:
+        - \underline{Normal order:}
+            - Under this strategy the leftmost outermost redex is always reduced first. Normal order of reduction is normalizing strategy in the sense that a term as a normal form then this order of reduction will find it.
+
+### Applicative Order:
+- Under this strategy the leftmost innermost redex is always reduced first.
+- It turns out that applicative order of reduction is not normalization
+
+#### Lecture (
