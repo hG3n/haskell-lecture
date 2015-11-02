@@ -305,4 +305,95 @@ ___
 - Under this strategy the leftmost innermost redex is always reduced first.
 - It turns out that applicative order of reduction is not normalization
 
-#### Lecture (
+#### Lecture (02.11.2015)
+- Let us look again at our example
+    - BLATT 1
+- The leftmost innermost redex is:
+    - BLATT 2
+- and the leftmost outermost redex is:
+    - BLATT 3
+- Applicative order of reduction will therefor evaluate the redex BLATT 4 first and will fail to terminate, whereas the normal order reduction will evaluate the outermost redex first, and will terminate in one step.
+- The function of such $\lambda x.\ \lambda y.\ y$ is a classical example of a function which discards its argument.
+- Normal order reduction delays the evaluation of any redex within the argument expression until there is no alternative redex available, just in case such reduction is proof redundant
+- The leftmost outermost selection policy therefor chooses to substite an expression for $x$ in $\lambda y.\ y$ before attempting any reduction within the argument expression.
+- It thus leads to the normal form $\lambda y.\ y$ in one step.
+- Applicative order of reduction in this case at first evaluates the argument expression and leads in the example to a non-termination.
+- These two strategies lead us to the two concepts of evaluation in modern programming languages
+
+### Call-by-name:
+- This is a restriction of normal order where no reductions are allowed inside abstractions.
+- Let us consider the term:
+    - BLATT 6
+- for simplicity we will write BLATT 7
+- This term has three redexes:
+    - BLATT 8 YALLA OANA!!!!!!!!!!!!!!!!!
+- With call by name strategy we get 
+    - BLATT 9 
+    $$$
+        \lambda formula shit
+    $$$
+- Haskell is even a more efficient variant known as \emph{call-by-need} where instead of re-evaluating an argument each time is used, all occurrences of the argument are overwritten with its value the first time its evaluated.
+- I FUCKING HATE THIS LECTURE
+- MONKEY WORK DRIVES ME CRAZY
+- blah blah blah 
+- This requires that we have a runtime representation of terms that allows sharing of subexpressions leading to a terms becoming graph rather than trees.
+
+
+### Call-by-value 
+- Most languages use this strategy, where again no reduction are allowed inside abstractions and a redex is only reduced when its argument part has already been reduced to a value.
+- BLATT 10 
+- The call-by-value strategy represents eager evaluation, and call-by-need(name) represents Lazy evaluation.
+
+
+- As we have seen it may be that the LAMBDA-term offers many opportunities for reduction at the same time.
+- In order for the whole calculus to make sense it is necessary that the ruslut of a computation is independent form the order of reduction.
+- We would like to express this property for all terms, not just for those which have a normal form. 
+- This is possible by the following theorem:
+    - __Theorem (Church-Rosser)__
+        - If a term $M$ can be reduced (in several steps) to terms $N$ and $P$, then there exists a term $Q$ to which both $N$ and $P$ can be reduced (in several steps).
+- This theorem 'provides' the so called diamond property whis is illustrated by the following diagram
+    - FIGURE 1
+- we use the symbol $\rightarrow *$ to denote an arbitrary number BLATT 11 of reductions (i.e. $\rightarrow *$ is the reflexive transitive of $\rightarrow$. The 'reflexive' part means that $E$ can be reduced to itself by doing nothing, $n=o$). Formally therefore, the diamond property states that: BLATT 12
+- We say that the reduction relation $\rightarrow$ is emph{Church Rosser} if $\rightarrow *$ satisfies the diamond property, and it can be proofed that BETA-reduction is \emph{Church-Rosser}.
+
+
+### Consequence of \emph{Church-Rosser}
+- If an expression $E$ can be reduced in two different ways to normal forms, then this normal forms are the same (up to alphabetical equivalence)
+
+#### Corollo-something y
+- Every LAMBDA-term has at most one normal form.
+#### Proof
+- For the sake of contradiction, assume that there are normal forms $N$ and $P$ to which a certain term is reduced:
+    - FIGURE 2
+- By the Church-Rosser theorem there is a term $Q$ to which both $P$ and $N$ can be reduced. 
+- However $N$ and $P$ are assumed to be in normal form, so no further reduction is possible.
+- Therefore the only possibility is thath $N=P=Q$. \box
+
+### BETA reduction and the name clash problem:
+- Let us consider the following expression:
+    - BLATT 13
+- We say that $x$ is bound in the whole expression, since there is an occurence of a $\lambda x$ within it. Equivalently we say that there is a binding occurence of $x$ within the expression.
+- Now let us have a look at the body of the outermost abstraction:
+    - BLATT 14 
+- ALthough $x$ appears in this expression there is no binding occurence of $x$ (i.e. there is no $\lambda x$ outside it)
+- We therefor say that the variable $x$ is three in the expression.
+- The variable $y$ is still bound by $\lambda y$.
+- If we now consider the body of the innermost abstraction ($x\ y\ y$) then both $x$ and $y$ are free.
+- We will sometimes refer to the set of expression free variables of an expression $E$ by $FV(E)$
+    - For example: $FV(\lambda x.\lambda y. x\ y\ y) = \{\}$
+    - $FV(\lambda y. x\ y\ y) = \{x\}$
+    - $FV(x\ y\ y) = \{x,y\}$
+- $FV$ an be defined more formally as follows: $FV(k) = \diameter $, $k$ is a constant
+- $FV(x) = \{x\}$ $x$ is a variable
+- $FV(E_1,E_2) = FV(E_1) \cup FV(E_2)$
+- $FV(\lambda x. E) = FV(E) - x$
+- Where $FV$ denotes the set $S$ with any occurence of $x$ removed. 
+    - _DEF:_ A LAMBDA-expression $E_1$ which contains no free variables (i.e. $FV(E)=\diameter$) is said to be closed
+- Using this notion of bound and free variables we can now formalize the definition of BETA-reduction:
+    - _DEF:_ to BETA-reduce an expression $(\lambda x. E)\ A$ we return a modified form of $E$ in which all free occurences of $x$ are replaced by $A$
+- Unfortunately this leads to a potential problem with BETA-reduction which can be illustrated by the following example:
+
+    - $\lambda x(\lambda y.\lambda x.\ +\ y\ x)$ BLATT 17
+- This expression contains a single BETA-redex
+- If we attempt to reduce this redex we will get $(\lambda x.\ +\ x\ x)$ which is quiet clearly wrong.
+- The problem is, that in this example the argument expression contains a free variable which has the same name as one of the bound variables within the abstraction body $(\lambda y. \lambda x.\ +\ x\ y)$ where $x$ is bound and $y$ is free
